@@ -1,14 +1,13 @@
 <template>
     <div id="app">
   <v-app id="inspire">
-    <v-card class="mx-auto mt-10" max-width="600" outlined>
-      <v-card-title>Vuetify Inline Editor Table </v-card-title>
-      <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="350px">
+    <v-card outlined>
+      <v-card-title>Purchases </v-card-title>
+      <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="200px">
         <v-divider inset></v-divider>
         <template v-slot:top>
           <v-toolbar flat color="white">
             <div class="d-flex w-100">
-              <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" dense outlined single-line hide-details></v-text-field>
               <v-btn
                 color="primary"
                 class="ml-2 white--text"
@@ -21,6 +20,10 @@
         <template v-slot:item.name="{ item }">
           <v-text-field v-model="editedItem.name" :hide-details="true" dense single-line :autofocus="true" v-if="item.id === editedItem.id"></v-text-field>
           <span v-else>{{item.name}}</span>
+        </template>
+        <template v-slot:item.serve="{ item }">
+          <v-text-field v-model="editedItem.serve" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
+          <span v-else>{{item.serve}}</span>
         </template>
         <template v-slot:item.calories="{ item }">
           <v-text-field v-model="editedItem.calories" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
@@ -63,8 +66,14 @@
     search: '',
     headers: [
       {
-        text: 'Dessert (100g serving)',
+        text: 'Dessert',
         value: 'name',
+        sortable: false,
+        width: '200px'
+      },
+      {
+        text: 'Servings',
+        value: 'serve',
         sortable: false
       },
       {
@@ -97,41 +106,49 @@
         {
           id: 1,
           name: 'Frozen Yogurt',
+          serve:10,
           calories: 120
         },
         {
           id: 2,
           name: 'Ice cream sandwich',
+          serve: 20,
           calories: 200
         },
         {
           id: 3,
           name: 'Eclair',
+          serve: 40,
           calories: 128
         },
         {
           id: 4,
           name: 'Cupcake',
+          serve: 50,
           calories: 140
         },
         {
           id: 5,
           name: 'Gingerbread',
+          serve: 80,
           calories: 159
         },
         {
           id: 6,
           name: 'Jelly bean',
+          serve: 0.5,
           calories: 110
         },
         {
           id: 7,
           name: 'Lollipop',
+          serve: 90,
           calories: 132
         },
         {
           id: 8,
           name: 'Honeycomb',
+          serve: 100,
           calories: 45
           
         }
