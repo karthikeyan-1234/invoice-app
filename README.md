@@ -1,4 +1,4 @@
-# invoice-app
+# invoice-app - https://www.youtube.com/watch?v=9LUftJC4KT8&t=1393s&ab_channel=AAEIdeaPro
 
 ## Project setup
 ```
