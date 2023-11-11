@@ -3,8 +3,10 @@
   <v-app id="inspire">
     <v-card outlined>
       <v-card-title>Purchases </v-card-title>
-      <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="200px">
+      <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="1500px">
         <v-divider inset></v-divider>
+
+
         <template v-slot:top>
           <v-toolbar flat color="white">
             <div class="d-flex w-100">
@@ -17,19 +19,26 @@
             </div>
           </v-toolbar>
         </template>
-        <template v-slot:item.name="{ item }">
-          <v-text-field v-model="editedItem.name" :hide-details="true" dense single-line :autofocus="true" v-if="item.id === editedItem.id"></v-text-field>
-          <span v-else>{{item.name}}</span>
+
+
+        <template v-slot:item.id="{ item }">
+          <span>{{item.id}}</span>
         </template>
-        <template v-slot:item.serve="{ item }">
-          <v-text-field v-model="editedItem.serve" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
-          <span v-else>{{item.serve}}</span>
+        <template v-slot:item.purchaseDate="{ item }">
+          <v-text-field v-model="editedItem.purchaseDate" :hide-details="true" dense single-line v-if="item.id === editedItem.id" >
+            <template v-slot:append-outer>
+              <date-picker v-model="editedItem.purchaseDate" />
+            </template>
+          </v-text-field>
+          <span v-else>{{item.purchaseDate}}</span>
         </template>
-        <template v-slot:item.calories="{ item }">
-          <v-text-field v-model="editedItem.calories" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
-          <span v-else>{{item.calories}}</span>
+        <template v-slot:item.vendorId="{ item }">
+          <v-text-field v-model="editedItem.vendorId" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
+          <span v-else>{{item.vendorId}}</span>
         </template>
+
         <template v-slot:item.actions="{ item }">
+
           <div v-if="item.id === editedItem.id">
             <v-icon color="red" class="mr-3" @click="close">
               mdi-window-close
@@ -38,6 +47,7 @@
               mdi-content-save
             </v-icon>
           </div>
+
           <div v-else>
             <v-icon color="green" class="mr-3" @click="editItem(item)">
               mdi-pencil
@@ -47,38 +57,45 @@
             </v-icon>
           </div>
         </template>
+
         <template v-slot:no-data>
           <v-btn color="primary" @click="initialize">Reset</v-btn>
         </template>
+
       </v-data-table>
     </v-card>
   </v-app>
 </div>
 </template>
 <script>
+
+import purchaseService from '../services/PurchaseService'
+import DatePicker from "../components/DatePicker.vue";
+
  export default {
     name: 'Purchases',
 
     components: {
+      DatePicker
     },
 
     data: () => ({
     search: '',
     headers: [
       {
-        text: 'Dessert',
-        value: 'name',
-        sortable: false,
+        text: 'Id',
+        value: 'id',
+        sortable: true,
         width: '200px'
       },
       {
-        text: 'Servings',
-        value: 'serve',
+        text: 'Purchases Date',
+        value: 'purchaseDate',
         sortable: false
       },
       {
-        text: 'Calories',
-        value: 'calories',
+        text: 'Vendor ID',
+        value: 'vendorId',
         sortable: false
       },
       { text: 'Actions', value: 'actions', sortable: false , width: "100px"},
@@ -99,60 +116,16 @@
   created () {
     this.initialize();
   },
-
+  async mounted(){
+    console.log("Calling purchases")
+    var res = await purchaseService.TestMethod();
+    console.log(res.data);
+  },
   methods: {
-    initialize () {
-      this.desserts = [
-        {
-          id: 1,
-          name: 'Frozen Yogurt',
-          serve:10,
-          calories: 120
-        },
-        {
-          id: 2,
-          name: 'Ice cream sandwich',
-          serve: 20,
-          calories: 200
-        },
-        {
-          id: 3,
-          name: 'Eclair',
-          serve: 40,
-          calories: 128
-        },
-        {
-          id: 4,
-          name: 'Cupcake',
-          serve: 50,
-          calories: 140
-        },
-        {
-          id: 5,
-          name: 'Gingerbread',
-          serve: 80,
-          calories: 159
-        },
-        {
-          id: 6,
-          name: 'Jelly bean',
-          serve: 0.5,
-          calories: 110
-        },
-        {
-          id: 7,
-          name: 'Lollipop',
-          serve: 90,
-          calories: 132
-        },
-        {
-          id: 8,
-          name: 'Honeycomb',
-          serve: 100,
-          calories: 45
-          
-        }
-      ]
+    async initialize () {
+
+      var res = await purchaseService.TestMethod(); 
+      this.desserts = res.data;
     },
 
     editItem (item) {
@@ -164,7 +137,6 @@
       const index = this.desserts.indexOf(item);
       confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1);
     },
-
     close () {
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
