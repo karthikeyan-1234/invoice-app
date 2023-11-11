@@ -1,9 +1,9 @@
 <template>
     <div id="app">
   <v-app id="inspire">
-    <v-card outlined>
+    <v-card class="purchase-card" outlined>
       <v-card-title>Purchases </v-card-title>
-      <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="1500px">
+      <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header>
         <v-divider inset></v-divider>
 
 
@@ -67,6 +67,16 @@
   </v-app>
 </div>
 </template>
+
+<style>
+.purchase-card{
+  margin-left:100px;
+  margin-top:100px;
+  height: 100px;
+  width:800px;
+}
+</style>
+
 <script>
 
 import purchaseService from '../services/PurchaseService'
@@ -127,12 +137,10 @@ import DatePicker from "../components/DatePicker.vue";
       var res = await purchaseService.TestMethod(); 
       this.desserts = res.data;
     },
-
     editItem (item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
     },
-
     deleteItem (item) {
       const index = this.desserts.indexOf(item);
       confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1);
