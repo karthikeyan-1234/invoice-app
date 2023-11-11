@@ -154,18 +154,28 @@ import DatePicker from "../components/DatePicker.vue";
     },
     close () {
       setTimeout(() => {
+
+        console.log("close button clicked");
+        console.log(this.editedItem);
+
+        if(this.editedItem.id == -1){
+          const index = this.desserts.indexOf(this.editedItem);
+          this.desserts.splice(index-1, 1)
+        } else{
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+        }
       }, 300)
     },
     addNew() {
        const addObj = Object.assign({}, this.defaultItem);
-       addObj.id = this.desserts.length + 1;
+       addObj.id = -1;
        this.desserts.unshift(addObj);
        this.editItem(addObj);
     },
     save () {
       if (this.editedIndex > -1) {
+        this.editedItem.id = this.desserts.length + 1
         Object.assign(this.desserts[this.editedIndex], this.editedItem)
       }
       this.close()
