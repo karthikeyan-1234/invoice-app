@@ -2,67 +2,62 @@
     <div id="app">
   <v-app id="inspire">
     <v-card class="purchase-card" outlined>
-      <v-card-title>Purchases </v-card-title>
-      <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header>
-        <v-divider inset></v-divider>
-
-
-        <template v-slot:top>
-          <v-toolbar flat color="white">
-            <div class="d-flex w-100">
-              <v-btn
+      <v-card-title>Purchases
+        <v-btn
                 color="primary"
                 class="ml-2 white--text"
                 @click="addNew">
-                <v-icon dark>mdi-plus</v-icon>Add
-              </v-btn>
+                <v-icon dark>mdi-plus</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <div>
+        <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="300px">
+          <v-divider inset></v-divider>
+
+          <template v-slot:item.id="{ item }">
+            <span>{{item.id}}</span>
+          </template>
+          <template v-slot:item.purchaseDate="{ item }">
+            <v-text-field v-model="editedItem.purchaseDate" :hide-details="true" dense single-line v-if="item.id === editedItem.id" >
+              <template v-slot:append-outer>
+                <date-picker v-model="editedItem.purchaseDate" />
+              </template>
+            </v-text-field>
+            <span v-else>{{item.purchaseDate}}</span>
+          </template>
+          <template v-slot:item.vendorId="{ item }">
+            <v-text-field v-model="editedItem.vendorId" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
+            <span v-else>{{item.vendorId}}</span>
+          </template>
+
+          <template v-slot:item.actions="{ item }">
+
+            <div v-if="item.id === editedItem.id">
+              <v-icon color="red" class="mr-3" @click="close">
+                mdi-window-close
+              </v-icon>
+              <v-icon color="green"  @click="save">
+                mdi-content-save
+              </v-icon>
             </div>
-          </v-toolbar>
-        </template>
 
+            <div v-else>
+              <v-icon color="green" class="mr-3" @click="editItem(item)">
+                mdi-pencil
+              </v-icon>
+              <v-icon color="red" @click="deleteItem(item)">
+                mdi-delete
+              </v-icon>
+            </div>
+          </template>
 
-        <template v-slot:item.id="{ item }">
-          <span>{{item.id}}</span>
-        </template>
-        <template v-slot:item.purchaseDate="{ item }">
-          <v-text-field v-model="editedItem.purchaseDate" :hide-details="true" dense single-line v-if="item.id === editedItem.id" >
-            <template v-slot:append-outer>
-              <date-picker v-model="editedItem.purchaseDate" />
-            </template>
-          </v-text-field>
-          <span v-else>{{item.purchaseDate}}</span>
-        </template>
-        <template v-slot:item.vendorId="{ item }">
-          <v-text-field v-model="editedItem.vendorId" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
-          <span v-else>{{item.vendorId}}</span>
-        </template>
+          <template v-slot:no-data>
+            <v-btn color="primary" @click="initialize">Reset</v-btn>
+          </template>
 
-        <template v-slot:item.actions="{ item }">
-
-          <div v-if="item.id === editedItem.id">
-            <v-icon color="red" class="mr-3" @click="close">
-              mdi-window-close
-            </v-icon>
-            <v-icon color="green"  @click="save">
-              mdi-content-save
-            </v-icon>
-          </div>
-
-          <div v-else>
-            <v-icon color="green" class="mr-3" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon color="red" @click="deleteItem(item)">
-              mdi-delete
-            </v-icon>
-          </div>
-        </template>
-
-        <template v-slot:no-data>
-          <v-btn color="primary" @click="initialize">Reset</v-btn>
-        </template>
-
-      </v-data-table>
+        </v-data-table>
+      </div>
     </v-card>
   </v-app>
 </div>
@@ -70,10 +65,22 @@
 
 <style>
 .purchase-card{
-  margin-left:100px;
-  margin-top:100px;
+  margin-left:50px;
+  margin-top:50px;
   height: 100px;
   width:800px;
+  max-height: 120px;
+}
+
+.v-data-table__wrapper {
+  max-height: none !important;
+}
+
+.v-data-table__wrapper thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: white;
 }
 </style>
 
