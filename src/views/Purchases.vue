@@ -95,7 +95,6 @@ import DatePicker from "../components/DatePicker.vue";
     components: {
       DatePicker
     },
-
     data: () => ({
     search: '',
     headers: [
@@ -118,68 +117,66 @@ import DatePicker from "../components/DatePicker.vue";
       { text: 'Actions', value: 'actions', sortable: false , width: "100px"},
     ],
     desserts: [],
-    editedIndex: -1,
     editedItem: {
       id: 0,
-      name: '',
-      calories: 0
+      purchaseDate: '',
+      vendorId: 0
     },
     defaultItem: {
-      id: 0,
-      name: 'New Item',
-      calories: 0
-    }
+      id: -1,
+      purchaseDate: '1900-01-01',
+      vendorId: 0
+    },
+    oldItem:{},
+    isEdited: false
   }),
   created () {
     this.initialize();
   },
   async mounted(){
-    console.log("Calling purchases")
-    var res = await purchaseService.TestMethod();
-    console.log(res.data);
   },
   methods: {
     async initialize () {
-
       var res = await purchaseService.TestMethod(); 
-      this.desserts = res.data;
+      this.desserts = JSON.parse(JSON.stringify(res.data));
     },
     editItem (item) {
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.oldItem = item;
+      this.editedItem = JSON.parse(JSON.stringify(item));
+      this.isEdited = true;
     },
     deleteItem (item) {
       const index = this.desserts.indexOf(item);
       confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1);
     },
-    close () {
-      setTimeout(() => {
-
-        console.log("close button clicked");
-        console.log(this.editedItem);
-
-        if(this.editedItem.id == -1){
-          const index = this.desserts.indexOf(this.editedItem);
-          this.desserts.splice(index-1, 1)
-        } else{
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-        }
-      }, 300)
-    },
     addNew() {
-       const addObj = Object.assign({}, this.defaultItem);
-       addObj.id = -1;
-       this.desserts.unshift(addObj);
-       this.editItem(addObj);
+      if(this.isEdited) return;
+      console.log("Adding new item");
+      this.desserts.unshift(JSON.parse(JSON.stringify(this.defaultItem)));
+      this.editItem(this.defaultItem);
     },
     save () {
-      if (this.editedIndex > -1) {
-        this.editedItem.id = this.desserts.length + 1
-        Object.assign(this.desserts[this.editedIndex], this.editedItem)
+      if(!this.isEdited) return;
+
+      if(this.editedItem.id == -1 || this.editedItem.id == undefined)
+      {
+        Object.assign(this.desserts[0],this.editedItem);
+        this.desserts[0].id = this.desserts.length;
       }
+      else
+      {
+        var index = this.desserts.indexOf(this.oldItem);
+        if(index != -1)
+          Object.assign(this.desserts[index],this.editedItem);
+      }
+
+      this.isEdited = false;
       this.close()
+    },
+    close () {
+    this.editedItem = {};
     }
     }
+    
   }
 </script>
