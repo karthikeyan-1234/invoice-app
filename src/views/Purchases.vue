@@ -11,6 +11,30 @@
         </v-btn>
       </v-card-title>
 
+      <v-card>
+        <div>
+        <table>
+          <tr>
+            <td>
+              <v-label>Purchase Date</v-label>
+            </td>
+            <td>
+              <v-label>Vendor ID</v-label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <v-text-field v-model="defaultItem.purchaseDate" outlined dense  type="date">
+              </v-text-field>
+            </td>
+            <td><v-text-field v-model="defaultItem.vendorId" outlined dense @keydown.enter="pushNew()" ref="firstText"></v-text-field></td>
+          </tr>
+        </table>
+      </div>
+      </v-card>
+
+
+
       <div>
         <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="300px">
           <v-divider inset></v-divider>
@@ -88,10 +112,12 @@
 
 import purchaseService from '../services/PurchaseService'
 import DatePicker from "../components/DatePicker.vue";
+import { VLabel } from 'vuetify/lib';
+import { VAlert } from 'vuetify/lib';
+import moment from 'moment';
 
  export default {
     name: 'Purchases',
-
     components: {
       DatePicker
     },
@@ -124,7 +150,7 @@ import DatePicker from "../components/DatePicker.vue";
     },
     defaultItem: {
       id: -1,
-      purchaseDate: '1900-01-01',
+      purchaseDate: moment().format('yyyy-MM-DD'),
       vendorId: 0
     },
     oldItem:{},
@@ -140,14 +166,30 @@ import DatePicker from "../components/DatePicker.vue";
       var res = await purchaseService.TestMethod(); 
       this.desserts = JSON.parse(JSON.stringify(res.data));
     },
-    editItem (item) {
+    editItem(item) {
       this.oldItem = item;
       this.editedItem = JSON.parse(JSON.stringify(item));
       this.isEdited = true;
     },
-    deleteItem (item) {
+    deleteItem(item) {
       const index = this.desserts.indexOf(item);
       confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1);
+    },
+    resetDefaultItem(){
+      this.defaultItem = {};
+      this.defaultItem.purchaseDate = moment().format('yyyy-MM-DD');
+      this.$refs["firstText"].focus();
+    },
+    pushNew(){
+      this.isEdited = false;
+      if(this.desserts.length > 0)
+        this.defaultItem.id = this.desserts[0].id + 1;
+      else
+        this.defaultItem.id = 1;
+      this.addNew();
+      this.isEdited = true;
+      this.save();
+      this.resetDefaultItem();
     },
     addNew() {
       if(this.isEdited) return;
@@ -161,7 +203,8 @@ import DatePicker from "../components/DatePicker.vue";
       if(this.editedItem.id == -1 || this.editedItem.id == undefined)
       {
         Object.assign(this.desserts[0],this.editedItem);
-        this.desserts[0].id = this.desserts.length;
+        if(this.desserts.length > 1)
+          this.desserts[0].id = this.desserts[1].id + 1;
       }
       else
       {
