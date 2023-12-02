@@ -1,20 +1,8 @@
 <template>
     <div id="app">
-
-      <v-alert v-model="showError" border="top"
-  color="red"
-  dense
-  dismissible
-  elevation="13"
-  outlined
-  prominent
-  shaped
-  text
-  type="error"> {{ errorMessage }} </v-alert>
-
   <v-app id="inspire">
     <v-card class="purchase-card" outlined>
-      <v-card-title>Purchases
+      <v-card-title>Materials
         <v-btn
                 color="primary"
                 class="ml-2 white--text"
@@ -27,20 +15,18 @@
         <div>
         <table>
           <tr>
-            <td>
-              <v-label>Purchase Date</v-label>
-            </td>
-            <td>
-              <v-label>Vendor ID</v-label>
-            </td>
+            <td><v-label>Material Name</v-label></td>
+            <td><v-label>Description</v-label></td>
+            <td><v-label>Expiry Days</v-label></td>
           </tr>
+
           <tr>
-            <td>
-              <v-text-field v-model="defaultItem.purchaseDate" outlined dense  type="date">
-              </v-text-field>
-            </td>
-            <td><v-text-field v-model="defaultItem.vendorId" outlined dense @keydown.enter="pushNew()" ref="firstText"></v-text-field></td>
+            <td><v-text-field v-model="defaultItem.name" outlined dense ref="firstText"></v-text-field></td>
+            <td><v-text-field v-model="defaultItem.description" outlined dense @keydown.enter="pushNew()"></v-text-field></td>
+            <td><v-text-field v-model="defaultItem.expiryInDays" outlined dense @keydown.enter="pushNew()"></v-text-field></td>
+
           </tr>
+
         </table>
       </div>
       </v-card>
@@ -48,23 +34,26 @@
 
 
       <div>
-        <v-data-table :headers="headers" :items="desserts" :search="search" class="elevation-1" fixed-header height="300px">
+        <v-data-table :headers="headers" :items="entries" :search="search" class="elevation-1" fixed-header height="300px">
           <v-divider inset></v-divider>
 
           <template v-slot:item.id="{ item }">
             <span>{{item.id}}</span>
           </template>
-          <template v-slot:item.purchaseDate="{ item }">
-            <v-text-field v-model="editedItem.purchaseDate" :hide-details="true" dense single-line v-if="item.id === editedItem.id" >
-              <template v-slot:append-outer>
-                <date-picker v-model="editedItem.purchaseDate" />
-              </template>
-            </v-text-field>
-            <span v-else>{{item.purchaseDate}}</span>
+
+          <template v-slot:item.name="{ item }">
+            <v-text-field v-model="editedItem.name" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
+            <span v-else>{{item.name}}</span>
           </template>
-          <template v-slot:item.vendorId="{ item }">
-            <v-text-field v-model="editedItem.vendorId" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
-            <span v-else>{{item.vendorId}}</span>
+
+          <template v-slot:item.description="{ item }">
+            <v-text-field v-model="editedItem.description" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
+            <span v-else>{{item.description}}</span>
+          </template>
+
+          <template v-slot:item.expiryInDays="{ item }">
+            <v-text-field v-model="editedItem.expiryInDays" :hide-details="true" dense single-line v-if="item.id === editedItem.id" ></v-text-field>
+            <span v-else>{{item.expiryInDays}}</span>
           </template>
 
           <template v-slot:item.actions="{ item }">
@@ -122,7 +111,7 @@
 
 <script>
 
-import purchaseService from '../services/PurchaseService'
+import materialService from '../services/MaterialService'
 import DatePicker from "../components/DatePicker.vue";
 import { VLabel } from 'vuetify/lib';
 import { VAlert } from 'vuetify/lib';
@@ -134,8 +123,6 @@ import moment from 'moment';
       DatePicker
     },
     data: () => ({
-    errorMessage:'',
-    showError:false,
     search: '',
     headers: [
       {
@@ -145,27 +132,34 @@ import moment from 'moment';
         width: '200px'
       },
       {
-        text: 'Purchases Date',
-        value: 'purchaseDate',
+        text: 'Name',
+        value: 'name',
         sortable: false
       },
       {
-        text: 'Vendor ID',
-        value: 'vendorId',
+        text: 'Description',
+        value: 'description',
+        sortable: false
+      },
+      {
+        text: 'Expiry in Days',
+        value: 'expiryInDays',
         sortable: false
       },
       { text: 'Actions', value: 'actions', sortable: false , width: "100px"},
     ],
-    desserts: [],
+    entries: [],
     editedItem: {
       id: 0,
-      purchaseDate: '',
-      vendorId: 0
+      name: '',
+      description: 0,
+      expiryInDays: 0
     },
     defaultItem: {
       id: -1,
-      purchaseDate: moment().format('yyyy-MM-DD'),
-      vendorId: 0
+      name: '',
+      description: 0,
+      expiryInDays: 0
     },
     oldItem:{},
     isEdited: false
@@ -177,14 +171,8 @@ import moment from 'moment';
   },
   methods: {
     async initialize () {
-      try {
-        var res = await purchaseService.GetAllPurchases(); 
-        this.desserts = JSON.parse(JSON.stringify(res.data));
-      } catch (error) {
-        this.errorMessage = error.message;
-        this.showError = true;
-      }
-
+      var res = await materialService.TestMethod(); 
+      this.entries = JSON.parse(JSON.stringify(res.data));
     },
     editItem(item) {
       this.oldItem = item;
@@ -192,18 +180,17 @@ import moment from 'moment';
       this.isEdited = true;
     },
     deleteItem(item) {
-      const index = this.desserts.indexOf(item);
-      confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1);
+      const index = this.entries.indexOf(item);
+      confirm('Are you sure you want to delete this item?') && this.entries.splice(index, 1);
     },
     resetDefaultItem(){
       this.defaultItem = {};
-      this.defaultItem.purchaseDate = moment().format('yyyy-MM-DD');
       this.$refs["firstText"].focus();
     },
     pushNew(){
       this.isEdited = false;
-      if(this.desserts.length > 0)
-        this.defaultItem.id = this.desserts.length + 1;
+      if(this.entries.length > 0)
+        this.defaultItem.id = this.entries.length + 1;
       else
         this.defaultItem.id = 1;
       this.addNew();
@@ -214,7 +201,7 @@ import moment from 'moment';
     addNew() {
       if(this.isEdited) return;
       console.log("Adding new item");
-      this.desserts.unshift(JSON.parse(JSON.stringify(this.defaultItem)));
+      this.entries.unshift(JSON.parse(JSON.stringify(this.defaultItem)));
       this.editItem(this.defaultItem);
     },
     save () {
@@ -222,15 +209,15 @@ import moment from 'moment';
 
       if(this.editedItem.id == -1 || this.editedItem.id == undefined)
       {
-        Object.assign(this.desserts[0],this.editedItem);
-        if(this.desserts.length > 1)
-          this.desserts[0].id = this.desserts[1].id + 1;
+        Object.assign(this.entries[0],this.editedItem);
+        if(this.entries.length > 1)
+          this.entries[0].id = this.entries.length + 1;
       }
       else
       {
-        var index = this.desserts.indexOf(this.oldItem);
+        var index = this.entries.indexOf(this.oldItem);
         if(index != -1)
-          Object.assign(this.desserts[index],this.editedItem);
+          Object.assign(this.entries[index],this.editedItem);
       }
 
       this.isEdited = false;

@@ -39,8 +39,11 @@ export default {
      drawer: true,
      links :[
          {icon: 'dashboard', text:'Dashboard', route: '/'},
-         {icon: 'folder', text:'My Project', route: '/projects'},
-         {icon: 'person', text:'Team', route: '/team'}
+         {icon: 'shop_two', text:'Purchases', route: '/purchases'},
+         {icon: 'summarize', text:'Sales', route: '/sales'},
+         {icon: 'category', text:'Materials', route: '/materials'},
+         {icon: 'summarize', text:'Reports', route: '/reports'},
+
      ]
     
    }),

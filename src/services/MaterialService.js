@@ -1,13 +1,13 @@
 import axios from "axios";
 
-class PurchaseService{
+class MaterialService{
     myVar = 1;
 constructor(){
 
 }
 
-async GetAllPurchases(){
-    var result = await axios.get("https://localhost:7199/api/Purchase/GetAllPurchasesAsync",(res) => {
+async TestMethod(){
+    var result = await axios.get("https://localhost:7032/api/Material/GetAllMaterialsAsync",(res) => {
         console.log("service call result");
         console.log(res);
         return res;
@@ -20,4 +20,4 @@ async GetAllPurchases(){
 
 };
 
-export default new PurchaseService();
+export default new MaterialService();
